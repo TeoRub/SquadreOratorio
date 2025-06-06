@@ -64,6 +64,7 @@
 <h1>Carica file CSV per assegnazione squadre</h1>
 <input type="file" id="csvfile" accept=".csv" />
 <button id="processBtn">Elabora e Scarica XLSX</button>
+<button id="esempioBtn">📄 Vedi Esempio CSV</button>
 
 <div id="messages"></div>
 
@@ -222,6 +223,9 @@
       }
     });
   });
+  document.getElementById('esempioBtn').addEventListener('click', () => {
+  window.open('esempio-csv.html', '_blank');
+});
 </script>
 
 </body>
