@@ -1,61 +1,126 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Esempio CSV</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fdfdfd;
-      padding: 2rem;
-      line-height: 1.6;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      max-width: 600px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px 12px;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-    caption {
-      margin-bottom: 1rem;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>Esempio CSV</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fdfdfd;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        caption {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
 </head>
+
 <body>
 
-  <h1>Esempio di File CSV</h1>
-  <p>Il file CSV deve contenere i seguenti campi: <strong>nome</strong>, <strong>cognome</strong>, <strong>classe</strong>, <strong>note</strong>.</p>
+    <h1>Esempio di File CSV</h1>
+    <p>Il file CSV deve contenere i seguenti campi: <strong>nome</strong>, <strong>cognome</strong>,
+        <strong>classe</strong>, <strong>note</strong>.
+    </p>
 
-  <table>
-    <caption>Contenuto CSV di esempio</caption>
-    <thead>
-      <tr>
-        <th>nome</th>
-        <th>cognome</th>
-        <th>classe</th>
-        <th>note</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>Mario</td><td>Russo</td><td>3M</td><td>"con Luca Esposito"</td></tr>
-      <tr><td>Luca</td><td>Ferrari</td><td>3E</td><td></td></tr>
-      <tr><td>Sara</td><td>Esposito</td><td>2E</td><td>"no Mario Russo"</td></tr>
-      <tr><td>Matteo</td><td>Romano</td><td>5E</td><td>"con Luca Esposito, Mario Russo"</td></tr>
-      <tr><td>Federico</td><td>Colombo</td><td>3M</td><td>"con Blu, Mario Russo"</td></tr>
-      <tr><td>Giorgia</td><td>Marino</td><td>2M</td><td>"no Mario Russo, Luca Esposito"</td></tr>
-      <tr><td>Federica</td><td>Vespucci</td><td>3M</td><td>"no Blu, Mario Russo"</td></tr>
-      <tr><td>Francesco</td><td>Savoia</td><td>3M</td><td>"con Gialli, no Mario Russo"</td></tr>
-    </tbody>
-  </table>
+    <table>
+        <caption>Contenuto CSV di esempio</caption>
+
+
+        <p>nome,cognome,classe,note</p><br>
+        <p>
+            Mario, Russo, 3M, "con Luca Esposito"<br>
+            Luca, Ferrari, 3E,<br>
+            Sara, Esposito, 2E, "no Mario Russo"<br>
+            Matteo, Romano, 5E, "con Luca Esposito, Mario Russo"<br>
+            Federico, Colombo, 3M, "con Blu, Mario Russo"<br>
+            Giorgia, Marino, 2M, "no Mario Russo, Luca Esposito"<br>
+            Federica, Vespucci, 3M, "no Blu, Mario Russo"<br>
+            Francesco, Savoia, 3M, "con Gialli, no Mario Russo"
+        </p>
+        <br><br>
+        <thead>
+            <tr>
+                <th>nome</th>
+                <th>cognome</th>
+                <th>classe</th>
+                <th>note</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Mario</td>
+                <td>Russo</td>
+                <td>3M</td>
+                <td>"con Luca Esposito"</td>
+            </tr>
+            <tr>
+                <td>Luca</td>
+                <td>Ferrari</td>
+                <td>3E</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Sara</td>
+                <td>Esposito</td>
+                <td>2E</td>
+                <td>"no Mario Russo"</td>
+            </tr>
+            <tr>
+                <td>Matteo</td>
+                <td>Romano</td>
+                <td>5E</td>
+                <td>"con Luca Esposito, Mario Russo"</td>
+            </tr>
+            <tr>
+                <td>Federico</td>
+                <td>Colombo</td>
+                <td>3M</td>
+                <td>"con Blu, Mario Russo"</td>
+            </tr>
+            <tr>
+                <td>Giorgia</td>
+                <td>Marino</td>
+                <td>2M</td>
+                <td>"no Mario Russo, Luca Esposito"</td>
+            </tr>
+            <tr>
+                <td>Federica</td>
+                <td>Vespucci</td>
+                <td>3M</td>
+                <td>"no Blu, Mario Russo"</td>
+            </tr>
+            <tr>
+                <td>Francesco</td>
+                <td>Savoia</td>
+                <td>3M</td>
+                <td>"con Gialli, no Mario Russo"</td>
+            </tr>
+        </tbody>
+    </table>
+
 
 </body>
+
 </html>
