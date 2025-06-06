@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Assegna Squadre CSV → XLSX</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7f8;
+      color: #333;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+      color: #2c3e50;
+    }
+    input[type="file"] {
+      border: 2px dashed #ccc;
+      padding: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      background: white;
+      transition: border-color 0.3s ease;
+      max-width: 350px;
+    }
+    input[type="file"]:hover {
+      border-color: #2980b9;
+    }
+    button {
+      margin-top: 1.5rem;
+      background-color: #2980b9;
+      border: none;
+      color: white;
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgb(41 128 185 / 0.3);
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #1f6391;
+    }
+    #messages {
+      margin-top: 2rem;
+      max-width: 600px;
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 0 12px rgb(0 0 0 / 0.1);
+      color: #2c3e50;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Carica file CSV per assegnazione squadre</h1>
+<input type="file" id="csvfile" accept=".csv" />
+<button id="processBtn">Elabora e Scarica XLSX</button>
+
+<div id="messages"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script>
+  document.getElementById('processBtn').addEventListener('click', () => {
+    const file = document.getElementById('csvfile').files[0];
+    const messages = document.getElementById('messages');
+    messages.textContent = '';
+
+    if (!file) {
+      messages.textContent = '❌ Seleziona un file CSV.';
+      return;
+    }
+
+    function normalizzaNomeCompleto(str) {
+      return str.trim().replace(/\s+/g, ' ').toLowerCase();
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    }
+
+    function estraiNomi(testo, _) {
+      return testo
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+    }
+
+    class Persona {
+      constructor(nome, cognome, classe, note) {
+        this.nome = nome;
+        this.cognome = cognome;
+        this.classe = classe;
+        this.note = note || '';
+        this.squadra = null;
+      }
+      nomeCompleto() {
+        return this.nome + ' ' + this.cognome;
+      }
+      nomeCompletoNorm() {
+        return normalizzaNomeCompleto(this.nome + ' ' + this.cognome);
+      }
+    }
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        try {
+          const data = results.data;
+          const persone = [];
+          const mappaNomi = {};
+
+          for (const row of data) {
+            if (!row || typeof row !== 'object') continue;
+            const keys = {};
+            for (const k in row) keys[k.toLowerCase()] = row[k];
+            if (!('nome' in keys) || !('cognome' in keys) || !('classe' in keys) || !('note' in keys)) continue;
+
+            const p = new Persona(keys.nome.trim(), keys.cognome.trim(), keys.classe.trim(), keys.note.trim());
+            persone.push(p);
+            mappaNomi[p.nomeCompletoNorm()] = p;
+          }
+
+          const squadreNomi = ['Rossi', 'Gialli', 'Verdi', 'Blu'];
+          const squadre = {};
+          squadreNomi.forEach(s => squadre[s] = []);
+          const vincoliViolati = [];
+
+          function assegnaBilanciato(p) {
+            let minSquadra = squadreNomi[0];
+            let min = squadre[minSquadra].length;
+            for (const s of squadreNomi) {
+              if (squadre[s].length < min) {
+                minSquadra = s;
+                min = squadre[s].length;
+              }
+            }
+            p.squadra = minSquadra;
+            squadre[minSquadra].push(p);
+          }
+
+          // Assegna senza note
+          persone.filter(p => !p.note).forEach(p => assegnaBilanciato(p));
+
+          // Gestione combinata CON e NO
+          persone.filter(p => !p.squadra && p.note).forEach(p => {
+            const nota = p.note.toLowerCase();
+            const conList = nota.includes('con') ? estraiNomi(nota.split('con')[1] || '', '') : [];
+            const noList = nota.includes('no') ? estraiNomi(nota.split('no')[1].split('con')[0] || '', '') : [];
+
+            const squadreTrovate = new Set();
+            const squadreDaEvitare = new Set();
+
+            noList.forEach(nome => {
+              const norm = normalizzaNomeCompleto(nome);
+              const ref = mappaNomi[norm];
+              if (ref?.squadra) squadreDaEvitare.add(ref.squadra);
+              else if (squadreNomi.map(s => s.toLowerCase()).includes(norm)) squadreDaEvitare.add(capitalize(norm));
+            });
+
+            conList.forEach(nome => {
+              const norm = normalizzaNomeCompleto(nome);
+              const ref = mappaNomi[norm];
+              if (ref?.squadra) squadreTrovate.add(ref.squadra);
+              else if (squadreNomi.map(s => s.toLowerCase()).includes(norm)) squadreTrovate.add(capitalize(norm));
+            });
+
+            if (squadreTrovate.size === 1) {
+              const s = [...squadreTrovate][0];
+              if (!squadreDaEvitare.has(s)) {
+                p.squadra = s;
+                squadre[s].push(p);
+                return;
+              } else {
+                vincoliViolati.push(`⚠️ Vincolo in conflitto per ${p.nomeCompleto()}: CON e NO in conflitto`);
+              }
+            }
+
+            const disponibili = squadreNomi.filter(s => !squadreDaEvitare.has(s));
+            if (disponibili.length > 0) {
+              p.squadra = disponibili[0];
+              squadre[p.squadra].push(p);
+            } else {
+              vincoliViolati.push(`⚠️ Vincolo violato per ${p.nomeCompleto()}: impossibile rispettare CON e NO`);
+              assegnaBilanciato(p);
+            }
+          });
+
+          // Chi non è stato ancora assegnato
+          persone.filter(p => !p.squadra).forEach(p => assegnaBilanciato(p));
+
+          // Genera file XLSX
+          const wb = XLSX.utils.book_new();
+          const header = [['Cognome', 'Nome', 'Classe', 'Squadra']];
+          const tutti = persone.map(p => [p.cognome, p.nome, p.classe, p.squadra]);
+          XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(header.concat(tutti)), 'tutte_Le_Squadre');
+
+          for (const s of squadreNomi) {
+            const rows = squadre[s].map(p => [p.cognome, p.nome, p.classe, p.squadra]);
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(header.concat(rows)), s);
+          }
+
+          XLSX.writeFile(wb, 'squadre_assegnate.xlsx');
+
+          messages.textContent = vincoliViolati.length
+            ? `✅ File generato con vincoli violati:\n${vincoliViolati.join('\n')}`
+            : '✅ File generato senza violazioni.';
+        } catch (err) {
+          messages.textContent = '❌ Errore durante l\'elaborazione: ' + err.message;
+        }
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
